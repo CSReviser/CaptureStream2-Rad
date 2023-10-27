@@ -19,15 +19,15 @@ jobs:
         
     - uses: actions/checkout@v3
     - name: qmake
-      run: qmake -makefile CaptureStream2-extra.pro QMAKE_APPLE_DEVICE_ARCHS="arm64"
+      run: qmake -makefile CaptureStream2-Rad.pro QMAKE_APPLE_DEVICE_ARCHS="arm64"
     - name: make
       run: make
       
     - name: Make CaptureStream2 executable
-      run: chmod -R 755 ./CaptureStream2-extra.app
+      run: chmod -R 755 ./CaptureStream2-Rad.app
   
     - uses: actions/upload-artifact@v3
       with:
-        name: CaptureStream2-extra-M1
+        name: CaptureStream2-Rad-M1
         path: ./
 
