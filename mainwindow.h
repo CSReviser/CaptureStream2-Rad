@@ -34,7 +34,7 @@
 #include <QStringList>
 #include "messagewindow.h"
 
-#define INI_FILE "CaptureStream2-extra.ini"
+#define INI_FILE "CaptureStream2-Rad.ini"
 
 //ニュースで英会話「音声と動画」「音声のみ」「動画のみ」
 #define ENewsSaveBoth	0
@@ -97,12 +97,13 @@ protected:
 public slots:
 	void download();
 	void toggled( bool checked );
+	void customizeSaveFolder();
 
 private slots:
 	void finished();
 	void customizeTitle();
 	void customizeFileName();
-	void customizeSaveFolder();
+//	void customizeSaveFolder();
 //	void customizeScramble();
 	void closeEvent2( );
 

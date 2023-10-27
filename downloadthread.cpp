@@ -1138,14 +1138,14 @@ void DownloadThread::run() {
 		   		   	
 		   bool json_flag = false; if(json_paths[i] != "0000") json_flag = true;			// 放送後１週間の講座　＝　true
 		   bool xml_flag  = false; if(Xml_koza != "") xml_flag = true;					// 放送翌週月曜から１週間の講座　＝　true
-		   bool pass_week = false; if(ui->checkBox_next_week2->isChecked()) pass_week = true;		// [前週]チェックボックスにチェック　＝　true
-		   bool ouch_check= false; if( ui->checkBox_ouch->isChecked() ) ouch_check = true;		// おうちチェックボックスにチェック　＝　true
-		   bool ouch_koza = false; if( paths[i] == "english/basic1" || paths[i] == "english/basic2" || paths[i] == "english/basic3" || paths[i] == "english/kaiwa" )  ouch_koza = true;			// おうちで英語学習対象講座　＝　true
+//		   bool pass_week = false; if(ui->checkBox_next_week2->isChecked()) pass_week = true;		// [前週]チェックボックスにチェック　＝　true
+//		   bool ouch_check= false; if( ui->checkBox_ouch->isChecked() ) ouch_check = true;		// おうちチェックボックスにチェック　＝　true
+//		   bool ouch_koza = false; if( paths[i] == "english/basic1" || paths[i] == "english/basic2" || paths[i] == "english/basic3" || paths[i] == "english/kaiwa" )  ouch_koza = true;			// おうちで英語学習対象講座　＝　true
 		   
 		   bool flag1 = false; bool flag2 = false; bool flag3 = false;
-		   if ( ( json_flag || !xml_flag ) && !ouch_check ) flag1 = true;	//json 放送後１週間
-		   if ( (( pass_week || !json_flag ) && xml_flag ) && !ouch_check ) flag2 = true;	// xml 放送翌週月曜から１週間
-		   if ( ouch_check && ouch_koza ) flag3 = true;						// おうちで英語学習 放送翌週月曜から６０日
+		   if ( ( json_flag || !xml_flag ) ) flag1 = true;	//json 放送後１週間
+		   if ( ( !json_flag ) && xml_flag  ) flag2 = true;	// xml 放送翌週月曜から１週間
+//		   if ( ouch_check && ouch_koza ) flag3 = true;						// おうちで英語学習 放送翌週月曜から６０日
 		   		
 		   if ( flag1 ) {							//json 放送後１週間
 		   	QStringList fileList2 = getJsonData( json_paths[i], "file_name" );
@@ -1169,8 +1169,8 @@ void DownloadThread::run() {
 			QStringList nendoList = getAttribute( prefix + Xml_koza + "/" + suffix, "@nendo" );
 			QStringList dirList = getAttribute( prefix + Xml_koza + "/" + suffix, "@dir" );
 
-			if ( fileList.count() && fileList.count() == kouzaList.count() && fileList.count() == hdateList.count() && ( ui->checkBox_next_week2->isChecked() || json_paths[i] == "0000") ) {
-			     if ( Xml_koza == "NULL" && !(ui->checkBox_next_week2->isChecked()) )	continue;
+			if ( fileList.count() && fileList.count() == kouzaList.count() && fileList.count() == hdateList.count() && ( json_paths[i] == "0000") ) {
+			     if ( Xml_koza == "NULL"  )	continue;
 				if ( true /*ui->checkBox_this_week->isChecked()*/ ) {
 					for ( int j = 0; j < fileList.count() && !isCanceled; j++ ){
 						QString RR = "R";

@@ -107,11 +107,11 @@ namespace {
 //			int day = regexp.cap( 2 ).toInt();
 //			result = QString( " (%1/%2/%3)" ).arg( regexp.cap( 3 ) )
 //					.arg( month, 2, 10, QLatin1Char( '0' ) ).arg( day, 2, 10, QLatin1Char( '0' ) );
-			result = QString( "  (2023/10/24)" ); 
+			result = QString( "  (2023/10/27)" ); 
 		}
 #endif
 #ifdef QT6
-			result = QString( "  (2023/10/24)" ); 
+			result = QString( "  (2023/10/27)" ); 
 #endif
 		return result;
 	}
@@ -143,11 +143,11 @@ MainWindow::MainWindow( QWidget *parent )
 	settings( ReadMode );
 	this->setWindowTitle( this->windowTitle() + version() );
 	no_write_ini = "yes";
-	
+
 #ifdef QT4_QT5_MAC		// Macのウィンドウにはメニューが出ないので縦方向に縮める
 //	setMaximumHeight( maximumHeight() - menuBar()->height() );
 //	setMinimumHeight( maximumHeight() - menuBar()->height() );
-	menuBar()->setNativeMenuBar(false);		// 他のOSと同様にメニューバーを表示　2023/04/04
+//	menuBar()->setNativeMenuBar(false);		// 他のOSと同様にメニューバーを表示　2023/04/04
 	setMaximumHeight( maximumHeight() );		// ダウンロードボタンが表示されない問題対策　2022/04/16
 	setMinimumHeight( maximumHeight() );		// ダウンロードボタンが表示されない問題対策　2022/04/16
 //	QRect rect = geometry();
@@ -157,7 +157,7 @@ MainWindow::MainWindow( QWidget *parent )
 //	setGeometry( rect );
 #endif
 #ifdef Q_OS_LINUX		// Linuxでは高さが足りなくなるので縦方向に伸ばしておく
-	menuBar()->setNativeMenuBar(false);					// メニューバーが表示されなくなったに対応
+//	menuBar()->setNativeMenuBar(false);					// メニューバーが表示されなくなったに対応
 	setMaximumHeight( maximumHeight() + X11_WINDOW_VERTICAL_INCREMENT );
 	setMinimumHeight( maximumHeight() + X11_WINDOW_VERTICAL_INCREMENT );
 	QRect rect = geometry();
@@ -167,10 +167,10 @@ MainWindow::MainWindow( QWidget *parent )
 
 #if !defined( QT4_QT5_MAC ) && !defined( QT4_QT5_WIN )
 	QPoint bottomLeft = geometry().bottomLeft();
-	bottomLeft += QPoint( 0, menuBar()->height() + statusBar()->height() + 3 );
+//	bottomLeft += QPoint( 0, menuBar()->height() + statusBar()->height() + 3 );
 	messagewindow.move( bottomLeft );
 #endif
-
+#if 0
 	// 「カスタマイズ」メニューの構築
 	customizeMenu = menuBar()->addMenu( QString::fromUtf8( "カスタマイズ" ) );
 
@@ -191,7 +191,7 @@ MainWindow::MainWindow( QWidget *parent )
 	action = new QAction( QString::fromUtf8( "設定削除（終了）..." ), this );
 	connect( action, SIGNAL( triggered() ), this, SLOT( closeEvent2() ) );
 	customizeMenu->addAction( action );
-
+#endif
 #ifdef QT4_QT5_MAC
 	QFont font( "Times New Roman", 10 );
 	qApp->setFont(font);
@@ -272,12 +272,12 @@ void MainWindow::settings( enum ReadWriteMode mode ) {
 		{ ui->checkBox_japanese, "japanese", false },
 		{ ui->checkBox_japanese2, "japanese2", false },
 		{ ui->checkBox_Living_in_Japan, "Living_in_Japan", false },
-		{ ui->checkBox_shower, "shower", false },
+//		{ ui->checkBox_shower, "shower", false },
 		{ ui->checkBox_skip, "skip", true },
-		{ ui->checkBox_keep_on_error, "keep_on_error", false },
-		{ ui->checkBox_this_week, "this_week", true },
-		{ ui->checkBox_next_week, "next_week", false },
-		{ ui->checkBox_next_week2, "past_week", false },
+//		{ ui->checkBox_keep_on_error, "keep_on_error", false },
+//		{ ui->checkBox_this_week, "this_week", true },
+//		{ ui->checkBox_next_week, "next_week", false },
+//		{ ui->checkBox_next_week2, "past_week", false },
 //		{ ui->checkBox_ouch, "ouch", false },
 		{ NULL, NULL, false }
 	};
@@ -364,10 +364,12 @@ void MainWindow::settings( enum ReadWriteMode mode ) {
 #endif
 			outputDir = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 			MainWindow::customizeSaveFolder();
-		} else
+		} else {
 			outputDir = saved.toString();
+		}
 #endif
 
+		ui->scramble->setText( outputDir );
 		for ( int i = 0; checkBoxes[i].checkBox != NULL; i++ ) {
 			checkBoxes[i].checkBox->setChecked( settings.value( checkBoxes[i].key, checkBoxes[i].defaultValue ).toBool() );
 		}
@@ -417,6 +419,7 @@ void MainWindow::customizeSaveFolder() {
 		outputDir = dir + QDir::separator();
 		outputDirSpecified = true;
 	}
+	ui->scramble->setText( outputDir );
 }
 
 #if 0
