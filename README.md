@@ -1,12 +1,12 @@
-### 語学講座CS2-extra
+### 語学講座CS2【Rad】
 ストリーミングで公開されているNHKラジオ語学講座(らじる★らじる(聴き逃し)配信)の録音を自動化するためのアプリです。 開発が中断しているhttps://osdn.net/projects/capturestream/  の派生版です。正式に開発を引き継いだものではありません。                            
-語学講座の録音にはffmpegを利用します。              
+語学講座の録音にはffmpegを利用します。語学講座CS2【extra】をベースに更新が停滞している類似アプリのGUIに似せたUIに変更してみました。              
 ※ 録音した語学講座のファイルは著作権法で許されている範囲内でご利用ください。       
    
 ### 安定版(master)最新リリース  
-[リリース](https://github.com/CSReviser/CaptureStream2-extra/releases)    
+[リリース](https://github.com/CSReviser/CaptureStream2-Rad/releases)    
 
-Macintosh版: [macOS版について](https://github.com/CSReviser/CS-English/wiki/Macintosh%E7%89%88)                          
+                     
 
 ### 2022年度の対応講座            
 小学生の基礎英語  
@@ -43,9 +43,6 @@ Macintosh版: [macOS版について](https://github.com/CSReviser/CS-English/wik
 
 ### イメージ
 ### 【Wondows版】                       
-<img src="https://user-images.githubusercontent.com/46049273/219273475-d5a3ec0b-d1ae-4523-a50e-3ab0fc1dec92.png" width="500">
+<img src="https://github-production-user-asset-6210df.s3.amazonaws.com/46049273/278784620-bf19a62f-7230-451d-9043-e94bc837d1c4.png" width="500">
 
-
-### 【Ubuntu版】                       
-<img src="https://user-images.githubusercontent.com/46049273/219273859-02f739d2-3ce0-4e2d-b4fc-70ed6c1cc340.png" width="500">
 
