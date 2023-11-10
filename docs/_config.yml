@@ -4,3 +4,4 @@ plugins:
 - jekyll-remote-theme # add this line to the plugins list if you already have one
 title: [語学講座CS2【ラジ】 (2023年度)]
 description: [ストリーミングで公開されているNHKラジオ語学講座(らじる★らじる（聴き逃し）配信)の録音を自動化するためのアプリです。語学講座の録音にはffmpegを利用します。 開発が中断している https://osdn.net/projects/capturestream/ の派生版です。 正式に開発を引き継いでいるものではありません。録音した語学講座のファイルは著作権法で許されている範囲内でご利用ください。 ]
+show_downloads: [ true ]
