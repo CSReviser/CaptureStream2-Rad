@@ -4,7 +4,6 @@
 ***
 ### 語学講座CS【ラジ】 [2023/11/16版](https://github.com/CSReviser/Capturestream2-Rad/releases/tag/20231116)                 
 
-   - #### Windows版(32bit): [2023/11/16版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20231116/CaptureStream2-Rad-Windows-20231116.zip)                          
    - #### Windows版(64bit): [2023/11/16版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20231116/CaptureStream2-Rad-Windows-x64-20231116.zip)    
    - #### Ubuntu版: [2023/11/16版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20231116/CaptureStream2-Rad-Ubuntu-qt6-20231116.zip)
    - #### MacOS版: [2023/11/16版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20231116/CaptureStream2-Rad-MacOS-20231116.dmg)
