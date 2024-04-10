@@ -107,11 +107,11 @@ namespace {
 //			int day = regexp.cap( 2 ).toInt();
 //			result = QString( " (%1/%2/%3)" ).arg( regexp.cap( 3 ) )
 //					.arg( month, 2, 10, QLatin1Char( '0' ) ).arg( day, 2, 10, QLatin1Char( '0' ) );
-			result = QString( "  (2023/11/16)" ); 
+			result = QString( "  (2024/04/11)" ); 
 		}
 #endif
 #ifdef QT6
-			result = QString( "  (2023/11/16)" ); 
+			result = QString( "  (2024/04/11)" ); 
 #endif
 		return result;
 	}
@@ -379,6 +379,20 @@ void MainWindow::settings( enum ReadWriteMode mode ) {
 			QString extension = settings.value( textComboBoxes[i].key, textComboBoxes[i].defaultValue ).toString();
 			textComboBoxes[i].comboBox->setCurrentIndex( textComboBoxes[i].comboBox->findText( extension ) );
 		}
+		
+		if ( QDate::currentDate() <= DownloadThread::nendo_end_date1 ){
+		ui->checkBox_french->setText( QString( Utility::getProgram_name( "0953_x1" ) ) );
+		ui->checkBox_french2->setText( QString( Utility::getProgram_name( "0953_y1" ) ) );
+		ui->checkBox_german->setText( QString( Utility::getProgram_name( "0943_x1" ) ) );
+		ui->checkBox_german2->setText( QString( Utility::getProgram_name( "0943_y1" ) ) );
+		ui->checkBox_italian->setText( QString( Utility::getProgram_name( "0946_x1" ) ) );
+		ui->checkBox_italian2->setText( QString( Utility::getProgram_name( "0946_y1" ) ) );
+		ui->checkBox_spanish->setText( QString( Utility::getProgram_name( "0948_x1" ) ) );
+		ui->checkBox_spanish2->setText( QString( Utility::getProgram_name( "0948_y1" ) ) );
+		ui->checkBox_russian->setText( QString( Utility::getProgram_name( "0956_x1" ) ) );
+		ui->checkBox_russian2->setText( QString( Utility::getProgram_name( "0956_y1" ) ) );
+		}
+		
 	} else {	// 設定書き出し
 #if !defined( QT4_QT5_MAC )
 		settings.setValue( SETTING_GEOMETRY, saveGeometry() );

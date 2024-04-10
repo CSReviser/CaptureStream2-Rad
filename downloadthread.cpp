@@ -118,9 +118,9 @@ QString DownloadThread::opt_title6;
 QString DownloadThread::opt_title7;
 QString DownloadThread::opt_title8;
 QStringList DownloadThread::malformed = (QStringList() << "3g2" << "3gp" << "m4a" << "mov");
-QString DownloadThread::nendo1 = "2023";
-QString DownloadThread::nendo2 = "2024";
-QDate DownloadThread::nendo_end_date1(2024, 3, 31);
+QString DownloadThread::nendo1 = "2024";
+QString DownloadThread::nendo2 = "2025";
+QDate DownloadThread::nendo_end_date1(2025, 3, 30);
 QDate DownloadThread::nendo_start_date1(2024, 4, 1);
 
 QHash<QString, QString> DownloadThread::ffmpegHash;
@@ -189,125 +189,83 @@ QStringList DownloadThread::getAttribute( QString url, QString attribute ) {
 }
 #endif
 
-QStringList DownloadThread::getJsonData( QString url, QString attribute ) {
-	QStringList attributeList;
-	attributeList.clear() ;
-    	QEventLoop eventLoop;
+std::tuple<QStringList, QStringList, QStringList, QStringList, QStringList> DownloadThread::getAttribute1( QString url ) {
+	QStringList fileList;			fileList.clear();
+	QStringList kouzaList;			kouzaList.clear();
+	QStringList hdateList;			hdateList.clear();
+	QStringList nendoList;			nendoList.clear();
+	QStringList dirList;			dirList.clear();
+
+    	QEventLoop eventLoop;	
 	QNetworkAccessManager mgr;
  	QObject::connect(&mgr, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
-	const QString jsonUrl = json_prefix + url.left(4) + "/bangumi_" + url + ".json";
-//	const QString jsonUrl = json_prefix + url + "/bangumi_" + url + "_01" + ".json";
-	QUrl url_json( jsonUrl );
+	QUrl url_xml( url );
 	QNetworkRequest req;
-	req.setUrl(url_json);
+	req.setUrl(url_xml);
 	QNetworkReply *reply = mgr.get(req);
-	eventLoop.exec(); // blocks stack until "finished()" has been called
+	QXmlStreamReader reader( reply );
+	eventLoop.exec();
 	
-	if (reply->error() == QNetworkReply::NoError) {
-		QString strReply = (QString)reply->readAll();
-		QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-		QJsonObject jsonObject = jsonResponse.object();
-		QJsonObject jsonObj = jsonResponse.object();
-    
-		QJsonArray jsonArray = jsonObject[ "main" ].toArray();
-		QJsonObject objx2 = jsonObject[ "main" ].toObject();
-		QString program_name = objx2[ "program_name" ].toString().replace( "　", " " );
-		if ( !(objx2[ "corner_name" ].toString().isNull()) ) program_name = objx2[ "corner_name" ].toString().replace( "　", " " );
-		    for (ushort i = 0xFF1A; i < 0xFF5F; ++i) {
-		        program_name = program_name.replace(QChar(i), QChar(i - 0xFEE0));
-		    }
-		    for (ushort i = 0xFF10; i < 0xFF1A; ++i) {
-		        program_name = program_name.replace( QChar(i - 0xFEE0), QChar(i) );
-		    }
-		QJsonArray detail_list2 = objx2[ "detail_list" ].toArray();
-		QJsonArray detail_list = objx2[ "detail_list" ].toArray();
+	while (!reader.atEnd()) {
+		reader.readNext();
+		if (reader.isStartDocument()) continue;
+		if (reader.isEndDocument()) break;
 
-//		foreach (const QJsonValue & value, detail_list) {
-		for (const auto&& value : detail_list) {
-			QJsonObject objxx = value.toObject();
-			QJsonArray file_list = objxx[ "file_list" ].toArray();					
-//			foreach (const QJsonValue & value, file_list) {
-			for (const auto&& value : file_list) {
-				QJsonObject objxx2 = value.toObject();
-				QString file_title = objxx2[ "file_title" ].toString();
-				QString file_name = objxx2[ "file_name" ].toString();
-				QString onair_date = objxx2[ "onair_date" ].toString();
-				QString open_time = objxx2[ "open_time" ].toString();
-				QString year = open_time.left( 4 );				
-					if ( attribute == "program_name" ) attributeList += program_name;
-					if ( attribute == "file_title" ) attributeList += file_title;
-					if ( attribute == "file_name" ) attributeList += file_name;
-					if ( attribute == "onair_date" ) attributeList += onair_date;
-					if ( attribute == "open_time" ) attributeList += year;
-//                             emit critical( QString::fromUtf8( "file_title：(%1) " )
-//					.arg( file_title ) );
-//                            emit critical( QString::fromUtf8( "file_name：(%1) " )
-//					.arg( file_name ) );
-//                             emit critical( QString::fromUtf8( "onair_date：(%1) " )
-//					.arg( onair_date ) );
-        		}					
-		}
+		fileList += reader.attributes().value( "file" ).toString();
+		kouzaList += reader.attributes().value( "kouza" ).toString();
+		hdateList += reader.attributes().value( "hdate" ).toString();
+		nendoList += reader.attributes().value( "nendo" ).toString();
+		dirList += reader.attributes().value( "dir" ).toString();
 	}
-	return attributeList;
+	return { fileList, kouzaList, hdateList, nendoList, dirList };	
 }
 
-QStringList DownloadThread::getJsonData_ouch( QString url, QString attribute ) {
-	int year_current = QDate::currentDate().year();
-	int month_current = QDate::currentDate().month();
-	if ( month_current < 5 ) year_current = year_current - 1;
-	QString nendo = QString::number( year_current );
-	url = url.remove( "english/" );
-	QStringList attributeList;
-	attributeList.clear() ;
-    	QEventLoop eventLoop;
-	QNetworkAccessManager mgr;
- 	QObject::connect(&mgr, SIGNAL(finished(QNetworkReply*)), &eventLoop, SLOT(quit()));
-	const QString jsonUrl = "https://www.nhk.or.jp/gogaku/homestudy" + nendo + "/" + url + "/json/index.json";
-	QUrl url_json( jsonUrl );
-	QNetworkRequest req;
-	req.setUrl(url_json);
-	QNetworkReply *reply = mgr.get(req);
-	eventLoop.exec(); // blocks stack until "finished()" has been called
-	
-	if (reply->error() == QNetworkReply::NoError) {
-		QString strReply = (QString)reply->readAll();
-		QJsonDocument jsonResponse = QJsonDocument::fromJson(strReply.toUtf8());
-		QJsonObject jsonObject = jsonResponse.object();
-		QJsonObject jsonObj = jsonResponse.object();
- 		QString program_name;   
-		QJsonArray jsonArray = jsonObject[ "teacher" ].toArray();
-	 		for (const auto&& value : jsonArray ) {
-				QJsonObject objxx3 = value.toObject();
-				program_name = objxx3[ "program" ].toString();
-		    	}
+std::tuple<QStringList, QStringList, QStringList, QStringList, QStringList> DownloadThread::getJsonData( QString url ) {
+	QStringList fileList;			fileList.clear();
+	QStringList kouzaList;			kouzaList.clear();
+	QStringList file_titleList;		file_titleList.clear();
+	QStringList hdateList;			hdateList.clear();
+	QStringList yearList;			yearList.clear();
 
-		QJsonArray list = jsonObject[ "list" ].toArray();
-		for (const auto&& value : list ) {
-			QJsonObject objx3 = value.toObject();
-			QString id = objx3[ "id" ].toString();
-			QJsonObject date = objx3[ "date" ].toObject();
-				int year = date[ "year" ].toInt();
-				int month = date[ "month" ].toInt();	
-				int day = date[ "day" ].toInt();
-				QString onair_date = QString::number( month + 100 ).right( 2 ) + "月" + QString::number( day + 100 ).right( 2 ) + "日放送分";
-
-
-			QJsonObject title = objx3[ "title" ].toObject();
-				QString file_title = title[ "en" ].toString();
-				QString ja = title[ "ja" ].toString();
-			if ( file_title == "" ) file_title = ja;
-			if ( attribute == "file_title" ) attributeList += file_title.replace( "\"", "'" ).replace( ",", "，" );
-			if ( attribute == "program" ) attributeList += program_name;
-			if ( attribute == "onair_date" ) attributeList += onair_date;
-			if ( attribute == "open_time" ) attributeList += QString::number( year );
-			if ( attribute != "file_name" ) continue;
-
- 			const QString url2 = "https://www.nhk.or.jp/gogaku/homestudy2023/" + url + "/" + id + ".html";
-			QString file_name  = getAttribute2( url2, "data-hlsurl" );
-			if ( attribute == "file_name" ) attributeList += file_name;
-		}					
+	int json_ohyo = 0 ;
+	if ( url.contains( "_x1" ) ) { url.replace( "_x1", "_01" ); json_ohyo = 1 ; };
+	if ( url.contains( "_y1" ) ) { url.replace( "_y1", "_01" ); json_ohyo = 2 ; };
+ 
+ 	const QString jsonUrl1 = "https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?site_id=" + url.left(4) + "&corner_site_id=" + url.right(2);
+	const QString jsonUrl2 = json_prefix + url.left(4) + "/bangumi_" + url + ".json";
+ 
+	QString strReply;
+	int flag = 0;
+	int TimerMin = 100;
+	int TimerMax = 5000;
+	int Timer = TimerMin;
+	int retry = 15;
+	for ( int i = 0 ; i < retry ; i++ ) {
+		strReply = Utility::getJsonFile( jsonUrl2, Timer );
+		if ( strReply != "error" )  {
+			flag = 2; break;
+		}
+		strReply = Utility::getJsonFile( jsonUrl1, Timer );
+		if ( strReply != "error" )  {
+			flag = 1; break;
+		}
+		if ( Timer < 500 ) Timer += 50;
+		if ( Timer > 500 && Timer < TimerMax ) Timer += 100;
 	}
-	return attributeList;
+
+	switch ( flag ) {
+	case 0: kouzaList += ""; emit critical( QString::fromUtf8( "番組ID：" ) + url + QString::fromUtf8( "のデータ取得エラー" ) ); break;
+	case 1: std::tie( fileList, kouzaList, file_titleList, hdateList, yearList ) = Utility::getJsonData1( strReply, json_ohyo ); break;
+	case 2: std::tie( fileList, kouzaList, file_titleList, hdateList, yearList ) = Utility::getJsonData2( strReply, json_ohyo ); break;
+	default: kouzaList += ""; emit critical( QString::fromUtf8( "番組ID：" ) + url + QString::fromUtf8( "のデータ取得エラー" ) ); break;
+	}
+
+	if ( kouzaList.count() > file_titleList.count() ) while ( kouzaList.count() == file_titleList.count() ) file_titleList += "\0";
+	if ( kouzaList.count() > fileList.count() ) while ( kouzaList.count() == fileList.count() ) fileList += "\0";
+	if ( kouzaList.count() > hdateList.count() ) while ( kouzaList.count() == hdateList.count() ) hdateList += "\0";
+	if ( kouzaList.count() > yearList.count() ) while ( kouzaList.count() == yearList.count() ) yearList += "\0";
+			
+	return { fileList, kouzaList, file_titleList, hdateList, yearList };
 }
 
 QString DownloadThread::getAttribute2( QString url, QString attribute ) {
@@ -327,6 +285,29 @@ QString DownloadThread::getAttribute2( QString url, QString attribute ) {
 	attribute = match.captured(0);
 
 	return attribute;
+}
+
+void DownloadThread::id_list() {
+	QStringList idList;
+	QStringList titleList;
+	std::tie( idList, titleList ) = Utility::getProgram_List();
+
+	QString tmp1;
+	QString tmp2;
+	for ( int i = 0; i < idList.count() - 1 ; i++ ) { 
+		for ( int j = i + 1; j < idList.count() ; j++ ) {
+			if ( idList[i] > idList[j] ) {
+				tmp1 =	idList[i];	tmp2 =	titleList[i];
+				idList[i] = idList[j];	titleList[i] = titleList[j];
+				idList[j] = tmp1;	titleList[j] = tmp2;
+			}
+		}
+	}				 
+	emit current( QString::fromUtf8( "番組ＩＤ\t： 番組名 " ) );
+	for ( int i = 0; i < idList.count() ; i++ ) { 
+		emit current( idList[i] + QString::fromUtf8( "\t： " ) + titleList[i] );
+	}
+//	MainWindow::id_flag = false;
 }
 
 bool DownloadThread::checkExecutable( QString path ) {
@@ -520,28 +501,32 @@ bool illegal( char c ) {
 	return result;
 }
 
-QString DownloadThread::formatName( QString format, QString kouza, QString hdate, QString file, QString nendo, bool checkIllegal ) {
+QString DownloadThread::formatName( QString format, QString kouza, QString hdate, QString file, QString nendo, QString dupnmb, bool checkIllegal ) {
 	int month = hdate.left( 2 ).toInt();
 	int year = nendo.right( 4 ).toInt();
 	int day = hdate.mid( 3, 2 ).toInt();
-	int year1 = QDate::currentDate().year();
+//	int year1 = QDate::currentDate().year();
 	
 	QDate on_air_date1(year, month, day);
 	if ( on_air_date1 <= nendo_end_date1 ) nendo = nendo1;
 	if ( on_air_date1 >= nendo_start_date1 ) nendo = nendo2;
-	if ( QString::compare(  kouza , QString::fromUtf8( "ボキャブライダー" ) ) ==0 ){
-		if ( month == 3 && ( day == 30 || day == 31) && year == 2022 ) 
-		year += 0;
- 		else
-		if ( month < 4 )
-		year += 1;
-	} else {
-	if ( month <= 4 && QDate::currentDate().year() > year )
-		year = year + (year1 - year);
-	}
+//	if ( QString::compare(  kouza , QString::fromUtf8( "ボキャブライダー" ) ) ==0 ){
+//		if ( month == 3 && ( day == 30 || day == 31) && year == 2022 ) 
+//		year += 0;
+// 		else
+//		if ( month < 4 )
+//		year += 1;
+//	} else {
+//	if ( month <= 4 && QDate::currentDate().year() > year )
+//		year = year + (year1 - year);
+//	}
 
 	if ( file.right( 4 ) == ".flv" )
 		file = file.left( file.length() - 4 );
+
+	QString dupnmb1 = dupnmb;
+	if ( format.contains( "%i", Qt::CaseInsensitive)) dupnmb1 = "";
+	if ( format.contains( "%_%i", Qt::CaseInsensitive)) { dupnmb.replace( "-", "_" ); format.remove( "%_" ); }
 
 	QString result;
 
@@ -555,7 +540,7 @@ QString DownloadThread::formatName( QString format, QString kouza, QString hdate
 				continue;
 			switch ( ascii ) {
 			case 'k': result += kouza; break;
-			case 'h': result += hdate.left( 6 ) + QString::fromUtf8( "放送分" ); break;
+			case 'h': result += hdate.left( 6 ) + QString::fromUtf8( "放送分" ) + dupnmb1; break;
 			case 'f': result += file; break;
 			//case 'r': result += MainWindow::applicationDirPath(); break;
 			//case 'p': result += QDir::separator(); break;
@@ -565,8 +550,11 @@ QString DownloadThread::formatName( QString format, QString kouza, QString hdate
 			case 'n': result += nendo.right( 2 ) + QString::fromUtf8( "年度" ); break;
 			case 'M': result += QString::number( month + 100 ).right( 2 ); break;
 			case 'm': result += QString::number( month ); break;
-			case 'D': result += QString::number( day + 100 ).right( 2 ); break;
-			case 'd': result += QString::number( day ); break;
+			case 'D': result += QString::number( day + 100 ).right( 2 ) + dupnmb1; break;
+			case 'd': result += QString::number( day ) + dupnmb1; break;
+			case 'i': result += dupnmb; break;
+			case 'x': break;
+			case 's': break;
 			default: result += qchar; break;
 			}
 		} else {
@@ -593,11 +581,21 @@ bool DownloadThread::captureStream( QString kouza, QString hdate, QString file, 
 		return false;
 	outputDir += QDir::separator();	//通常ファイルが存在する場合のチェックのために後から追加する
 
+	int month = hdate.left( 2 ).toInt();
+	int year = nendo.right( 4 ).toInt();
+	int day = hdate.mid( 3, 2 ).toInt();
+	if ( 2022 > year ) return false;
+	int year1 = QDate::currentDate().year();
+	if ( month <= 4 && QDate::currentDate().year() > year )
+		year = year + (year1 - year);
+	QDate onair( year, month, day );
+	QString yyyymmdd = onair.toString( "yyyy_MM_dd" );
+
 	QString titleFormat;
 	QString fileNameFormat;
 	CustomizeDialog::formats( "xml", titleFormat, fileNameFormat );
-	QString id3tagTitle = formatName( titleFormat, kouza, hdate, file, nendo, false );
-	QString outFileName = formatName( fileNameFormat, kouza, hdate, file, nendo, true );
+	QString id3tagTitle = formatName( titleFormat, kouza, hdate, file, yyyymmdd.left(4), "", false );
+	QString outFileName = formatName( fileNameFormat, kouza, hdate, file, yyyymmdd.left(4), "", true );
 	QFileInfo fileInfo( outFileName );
 	QString outBasename = fileInfo.completeBaseName();
 	
@@ -612,25 +610,6 @@ bool DownloadThread::captureStream( QString kouza, QString hdate, QString file, 
 #else
 	QString null( "/dev/null" );
 #endif
-	int month = hdate.left( 2 ).toInt();
-	int year = nendo.right( 4 ).toInt();
-	int day = hdate.mid( 3, 2 ).toInt();
-	if ( 2022 > year ) return false;
-	int year1 = QDate::currentDate().year();
-
-//	if ( QString::compare(  kouza , QString::fromUtf8( "ボキャブライダー" ) ) ==0 ){
-//		if ( month == 3 && ( day == 30 || day == 31) && year == 2022 ) 
-//		year += 0; 
- //		else
-//		if ( month < 4 )
-//		year += 1;
-//	} else {
-	if ( month <= 4 && QDate::currentDate().year() > year )
-		year = year + (year1 - year);
-//	}
-	QDate onair( year, month, day );
-	QString yyyymmdd = onair.toString( "yyyy_MM_dd" );
-
 	QString kon_nendo = "2023"; //QString::number(year1);
 
 	if ( ui->checkBox_skip->isChecked() && QFile::exists( outputDir + outFileName ) ) {
@@ -829,28 +808,37 @@ bool DownloadThread::captureStream( QString kouza, QString hdate, QString file, 
 			return true;
 }
 
-
-
-bool DownloadThread::captureStream_json( QString kouza, QString hdate, QString file, QString nendo, QString title, QString ouch ) {
-	QString outputDir = MainWindow::outputDir + kouza;
-	if ( ouch == "O" )
-		outputDir = MainWindow::outputDir + QString::fromUtf8( "おうちで英語学習" )+ "/" + kouza;
-		
-	if ( !checkOutputDir( outputDir ) )
-		return false;
-	outputDir += QDir::separator();	//通常ファイルが存在する場合のチェックのために後から追加する
+bool DownloadThread::captureStream_json( QString kouza, QString hdate, QString file, QString nendo, QString title, QString dupnmb, QString json_path, bool nogui_flag ) {
 
 	QString titleFormat;
 	QString fileNameFormat;
 	CustomizeDialog::formats( "json", titleFormat, fileNameFormat );
+	QString outputDir = MainWindow::outputDir;
+	QString extension = ui->comboBox_extension->currentText();
+		
+	if ( nogui_flag ) std::tie( titleFormat, fileNameFormat, outputDir, extension ) = Utility::nogui_option( titleFormat, fileNameFormat, outputDir, extension );
+
 //	QString id3tagTitle = title;
-	QString id3tagTitle = formatName( titleFormat, kouza, hdate, title, nendo, false );
-	QString outFileName = formatName( fileNameFormat, kouza, hdate, title, nendo, true );
+	if ( json_path.contains( "_01", Qt::CaseInsensitive ) && (fileNameFormat.contains( "%s", Qt::CaseInsensitive) || fileNameFormat.contains( "%x", Qt::CaseInsensitive)) ) {
+//	if ( fileNameFormat.contains( "%s", Qt::CaseInsensitive) || fileNameFormat.contains( "%x", Qt::CaseInsensitive) ) {
+		if ( title.contains( "入門", Qt::CaseInsensitive) ) kouza = kouza + " 入門編";
+		if ( title.contains( "初級", Qt::CaseInsensitive) ) kouza = kouza + " 初級編";
+		if ( title.contains( "中級", Qt::CaseInsensitive) ) kouza = kouza + " 中級編";
+		if ( title.contains( "応用", Qt::CaseInsensitive) ) kouza = kouza + " 応用編";
+	}
+
+	QString id3tagTitle = formatName( titleFormat, kouza, hdate, title, nendo, dupnmb, false );
+	QString outFileName = formatName( fileNameFormat, kouza, hdate, title, nendo, dupnmb, true );
 	QFileInfo fileInfo( outFileName );
 	QString outBasename = fileInfo.completeBaseName();
 	
+	outputDir = outputDir + kouza;
+	if ( !checkOutputDir( outputDir ) )
+		return false;
+	outputDir += QDir::separator();	//通常ファイルが存在する場合のチェックのために後から追加する
+	
 	// 2013/04/05 オーディオフォーマットの変更に伴って拡張子の指定に対応
-	QString extension = ui->comboBox_extension->currentText();
+//	QString extension = ui->comboBox_extension->currentText();
 	QString extension1 = extension;
 	if ( extension.left( 3 ) == "mp3" ) extension1 = "mp3";
 	outFileName = outBasename + "." + extension1;
@@ -872,22 +860,13 @@ bool DownloadThread::captureStream_json( QString kouza, QString hdate, QString f
 	QDate onair( year, month, day );
 	QString yyyymmdd = onair.toString( "yyyy_MM_dd" );
 
-	QString kon_nendo = "2023"; //QString::number(year1);
-	
+	QString kon_nendo = "2023"; //QString::number(year1);	
 	if ( ui->checkBox_skip->isChecked() && QFile::exists( outputDir + outFileName ) ) {
-	   if ( ouch == "O" ) {
-		emit current( QString::fromUtf8( "スキップ：[おう]　　" ) + kouza + QString::fromUtf8( "　" ) + yyyymmdd );
-	   } else {
-		emit current( QString::fromUtf8( "スキップ：　　　　　" ) + kouza + QString::fromUtf8( "　" ) + yyyymmdd );
-	   }
+		emit current( QString::fromUtf8( "スキップ：　　　　　" ) + kouza + QString::fromUtf8( "　" ) + yyyymmdd + dupnmb);
 //		emit current( QString::fromUtf8( "スキップ：　　　　　" ) + kouza + QString::fromUtf8( "　" ) + yyyymmdd );
 	   	return true;
 	}
-	if ( ouch == "O" ) {
-	  	emit current( QString::fromUtf8( "レコーディング中：[おう] " ) + kouza + QString::fromUtf8( "　" ) + yyyymmdd );
-	} else {
-  		emit current( QString::fromUtf8( "レコーディング中：　" ) + kouza + QString::fromUtf8( "　" ) + yyyymmdd );
-	}
+  		emit current( QString::fromUtf8( "レコーディング中：　" ) + kouza + QString::fromUtf8( "　" ) + yyyymmdd + dupnmb );
 //  		emit current( QString::fromUtf8( "レコーディング中：　" ) + kouza + QString::fromUtf8( "　" ) + yyyymmdd );
 	
 	Q_ASSERT( ffmpegHash.contains( extension ) );
@@ -928,13 +907,23 @@ bool DownloadThread::captureStream_json( QString kouza, QString hdate, QString f
 	QString filem3u8aA = file;
 	QString dstPathA = outputDir + outFileName;
 	QString id3tagTitleA = id3tagTitle;
-	QString kouzaA = kouza;	
+	QString id3tag_album = kouza;
+	
+	if ( fileNameFormat.contains( "%x", Qt::CaseInsensitive) ) {
+		id3tag_album.remove( "まいにち" );
+		if ( kouza.contains( "レベル１", Qt::CaseInsensitive) ) id3tag_album = "L1_" + id3tag_album.remove( "レベル１" );
+		if ( kouza.contains( "レベル２", Qt::CaseInsensitive) ) id3tag_album = "L2_" + id3tag_album.remove( "レベル２" );
+		if ( kouza.contains( "入門", Qt::CaseInsensitive) ) id3tag_album = "入門_" + id3tag_album.remove( "入門編" );
+		if ( kouza.contains( "初級", Qt::CaseInsensitive) ) id3tag_album = "初級_" + id3tag_album.remove( "初級編" );
+		if ( kouza.contains( "中級", Qt::CaseInsensitive) ) id3tag_album = "中級_" + id3tag_album.remove( "中級編" );
+		if ( kouza.contains( "応用", Qt::CaseInsensitive) ) id3tag_album = "応用_" + id3tag_album.remove( "応用編" );
+	}
 	
 	QStringList argumentsA = arguments0 + ffmpegHash[extension]
-			.arg( filem3u8aA, dstPathA, id3tagTitleA, kouzaA,  nendo ).split(",");
+			.arg( filem3u8aA, dstPathA, id3tagTitleA, id3tag_album,  nendo ).split(",");
 	
 	QStringList argumentsB = arguments1 + arguments0 + ffmpegHash[extension]
-			.arg( filem3u8aA, dstPathA, id3tagTitleA, kouzaA,  nendo ).split(",");
+			.arg( filem3u8aA, dstPathA, id3tagTitleA, id3tag_album,  nendo ).split(",");
 
 	Error_mes = "";
 	QString ffmpeg_Error;
@@ -1047,9 +1036,6 @@ QString DownloadThread::ffmpeg_process( QStringList arguments ) {
 	return "";
 }
 
-
-
-
 QString DownloadThread::paths[] = {
 	"english/basic0", "english/basic1", "english/basic2", "english/basic3",
 	"english/timetrial",  "english/kaiwa", "english/business1", "english/enjoy", 
@@ -1062,14 +1048,14 @@ QString DownloadThread::paths[] = {
 };
 
 QString DownloadThread::json_paths[] = {
-	"6805", "6806", "6807", "6808",
-	"2331", "0916", "6809", "3064",
-	"4121", "7512",
-	"0915", "6581", "0951", "6810",	
-	"0953", "4412", "0946", "4411",
-	"0943", "4410", "0948", "4413",
-	"0956", "4414", "1893", "2769",
-	"0937", "7155", "0701", "7629"
+	"6805_01", "6806_01", "6807_01", "6808_01",
+	"2331_01", "0916_01", "6809_01", "3064_01",
+	"4121_01", "7512_01",
+	"0915_01", "6581_01", "0951_01", "6810_01",	
+	"0953_x1", "0953_y1", "0946_x1", "0946_y1",
+	"0943_x1", "0943_y1", "0948_x1", "0948_y1",
+	"0956_x1", "0956_y1", "2769_01", "7880_01",
+	"0937_01", "7155_01", "0701_01", "7629_01"
 };
 
 QString DownloadThread::paths2[] = {
@@ -1093,28 +1079,28 @@ QString DownloadThread::json_paths2[] = {
 };
 
 QMap<QString, QString> DownloadThread::map = { 
-	{ "6805", "english/basic0" },		// 小学生の基礎英語
-	{ "6806", "english/basic1" },		// 中学生の基礎英語 レベル1
-	{ "6807", "english/basic2" },		// 中学生の基礎英語 レベル2
-	{ "6808", "english/basic3" },		// 中高生の基礎英語 in English
-	{ "2331", "english/timetrial" },	// 英会話タイムトライアル
-	{ "0916", "english/kaiwa" },		// ラジオ英会話
-	{ "6809", "english/business1" },	// ラジオビジネス英語
-	{ "3064", "english/enjoy" },		// エンジョイ・シンプル・イングリッシュ
-	{ "0953", "french/kouza" },		// まいにちフランス語 入門編
-	{ "4412", "french/kouza2" },		// まいにちフランス語 応用編
-	{ "0943", "german/kouza" },		// まいにちドイツ語 入門編
-	{ "4410", "german/kouza2" },		// まいにちドイツ語 応用編
-	{ "0948", "spanish/kouza" },		// まいにちスペイン語 入門編
-	{ "4413", "spanish/kouza2" },		// まいにちスペイン語 応用編
-	{ "0946", "italian/kouza" },		// まいにちイタリア語 入門編
-	{ "4411", "italian/kouza2" },		// まいにちイタリア語 応用編
-	{ "0956", "russian/kouza" },		// まいにちロシア語 入門編
-	{ "4414", "russian/kouza2" },		// まいにちロシア語 応用編
-	{ "0915", "chinese/kouza" },		// まいにち中国語
-	{ "6581", "chinese/stepup" },		// ステップアップ中国語
-	{ "0951", "hangeul/kouza" },		// まいにちハングル講座
-	{ "6810", "hangeul/stepup" }		// ステップアップ ハングル講座
+	{ "6805_01", "english/basic0" },	// 小学生の基礎英語
+	{ "6806_01", "english/basic1" },	// 中学生の基礎英語 レベル1
+	{ "6807_01", "english/basic2" },	// 中学生の基礎英語 レベル2
+	{ "6808_01", "english/basic3" },	// 中高生の基礎英語 in English
+	{ "2331_01", "english/timetrial" },	// 英会話タイムトライアル
+	{ "0916_01", "english/kaiwa" },		// ラジオ英会話
+	{ "6809_01", "english/business1" },	// ラジオビジネス英語
+	{ "3064_01", "english/enjoy" },		// エンジョイ・シンプル・イングリッシュ
+	{ "0953_x1", "french/kouza" },		// まいにちフランス語 入門編
+	{ "0953_y1", "french/kouza2" },		// まいにちフランス語 応用編
+	{ "0943_x1", "german/kouza" },		// まいにちドイツ語 入門編
+	{ "0943_y1", "german/kouza2" },		// まいにちドイツ語 応用編
+	{ "0948_x1", "spanish/kouza" },		// まいにちスペイン語 入門編
+	{ "0948_y1", "spanish/kouza2" },	// まいにちスペイン語 応用編
+	{ "0946_x1", "italian/kouza" },		// まいにちイタリア語 入門編
+	{ "0946_y1", "italian/kouza2" },	// まいにちイタリア語 応用編
+	{ "0956_x1", "russian/kouza" },		// まいにちロシア語 入門編
+	{ "0956_y1", "russian/kouza2" },	// まいにちロシア語 応用編
+	{ "0915_01", "chinese/kouza" },		// まいにち中国語
+	{ "6581_01", "chinese/stepup" },	// ステップアップ中国語
+	{ "0951_01", "hangeul/kouza" },		// まいにちハングル講座
+	{ "6810_01", "hangeul/stepup" }		// ステップアップ ハングル講座
 };	
 
 void DownloadThread::run() {
@@ -1133,10 +1119,45 @@ void DownloadThread::run() {
 	if ( !isFfmpegAvailable( ffmpeg ) )
 		return;
 
-	//emit information( QString::fromUtf8( "2013年7月29日対応版です。" ) );
-	//emit information( QString::fromUtf8( "ニュースで英会話とABCニュースシャワーは未対応です。" ) );
-	//emit information( QString::fromUtf8( "----------------------------------------" ) );
-
+	QStringList ProgList;	
+	if( Utility::nogui() ) {
+		ProgList = Utility::optionList();
+		if ( ProgList[0] == "return" ) return;
+		if ( ProgList[0] != "erorr" ) {			// -nogui + 番組IDオプション
+			for ( int i = 0; i < ProgList.count() ; i++ ) {
+			   	QStringList fileList2;
+				QStringList kouzaList2;
+				QStringList file_titleList;
+				QStringList hdateList1;
+				QStringList yearList;
+				QString json_path = ProgList[i];
+				std::tie( fileList2, kouzaList2, file_titleList, hdateList1, yearList ) = getJsonData( json_path );
+				QStringList hdateList2 = one2two( hdateList1 );
+				QStringList dupnmbList;
+				dupnmbList.clear() ;
+				int k = 1;
+				for ( int ii = 0; ii < hdateList2.count() ; ii++ ) dupnmbList += "" ;
+				for ( int ii = 0; ii < hdateList2.count() - 1 ; ii++ ) {
+					if ( hdateList2[ii] == hdateList2[ii+1] ) {
+						if ( k == 1 ) dupnmbList[ii].replace( "", "-1" );
+						k = k + 1;
+						QString dup = "-" + QString::number( k );
+						dupnmbList[ii+1].replace( "", dup );
+					} else {
+						k = 1;
+					}
+				}
+				
+				if ( fileList2.count() && fileList2.count() == kouzaList2.count() && fileList2.count() == hdateList2.count() ) {
+						for ( int j = 0; j < fileList2.count() && !isCanceled; j++ ){
+							if ( fileList2[j] == "" || fileList2[j] == "null" ) continue;
+							captureStream_json( kouzaList2[j], hdateList2[j], fileList2[j], yearList[j], file_titleList[j], dupnmbList[j], ProgList[i], true );
+						}
+				}
+			}
+		return;
+		}
+	}
 
        for ( int i = 0; checkbox[i] && !isCanceled; i++ ) {
 	
@@ -1146,43 +1167,58 @@ void DownloadThread::run() {
 
 		if ( checkbox[i]->isChecked()) {
 		   QString Xml_koza = "NULL";
-		   Xml_koza = map.value( json_paths[i].left(4) );
+		   Xml_koza = map.value( json_paths[i] );
 		   		   	
 		   bool json_flag = false; if(json_paths[i] != "0000") json_flag = true;			// 放送後１週間の講座　＝　true
 		   bool xml_flag  = false; if(Xml_koza != "") xml_flag = true;					// 放送翌週月曜から１週間の講座　＝　true
 //		   bool pass_week = false; if(ui->checkBox_next_week2->isChecked()) pass_week = true;		// [前週]チェックボックスにチェック　＝　true
-//		   bool ouch_check= false; if( ui->checkBox_ouch->isChecked() ) ouch_check = true;		// おうちチェックボックスにチェック　＝　true
-//		   bool ouch_koza = false; if( paths[i] == "english/basic1" || paths[i] == "english/basic2" || paths[i] == "english/basic3" || paths[i] == "english/kaiwa" )  ouch_koza = true;			// おうちで英語学習対象講座　＝　true
 		   
-		   bool flag1 = false; bool flag2 = false; bool flag3 = false;
+		   bool flag1 = false; bool flag2 = false;  // bool flag3 = false;
 		   if ( ( json_flag || !xml_flag ) ) flag1 = true;	//json 放送後１週間
-		   if ( ( !json_flag ) && xml_flag  ) flag2 = true;	// xml 放送翌週月曜から１週間
-//		   if ( ouch_check && ouch_koza ) flag3 = true;						// おうちで英語学習 放送翌週月曜から６０日
-		   		
+//		   if ( (( pass_week || !json_flag ) && xml_flag ) ) flag2 = true;	// xml 放送翌週月曜から１週間
+
 		   if ( flag1 ) {							//json 放送後１週間
-		   	QStringList fileList2 = getJsonData( json_paths[i], "file_name" );
-			QStringList kouzaList2 = getJsonData( json_paths[i], "program_name" );
-			QStringList file_titleList = getJsonData( json_paths[i], "file_title" );
-			QStringList hdateList2 = one2two( getJsonData( json_paths[i], "onair_date" ));
-			QStringList yearList = getJsonData( json_paths[i], "open_time" );
-			
+		   	QStringList fileList2;
+			QStringList kouzaList2;
+			QStringList file_titleList;
+			QStringList hdateList1;
+			QStringList yearList;
+			QString json_path = json_paths[i];
+			std::tie( fileList2, kouzaList2, file_titleList, hdateList1, yearList ) = getJsonData( json_path );
+			QStringList hdateList2 = one2two( hdateList1 );
+			QStringList dupnmbList;
+			dupnmbList.clear() ;
+			int k = 1;
+			for ( int ii = 0; ii < hdateList2.count() ; ii++ ) dupnmbList += "" ;
+			for ( int ii = 0; ii < hdateList2.count() - 1 ; ii++ ) {
+				if ( hdateList2[ii] == hdateList2[ii+1] ) {
+					if ( k == 1 ) dupnmbList[ii].replace( "", "-1" );
+					k = k + 1;
+					QString dup = "-" + QString::number( k );
+					dupnmbList[ii+1].replace( "", dup );
+				} else {
+					k = 1;
+				}
+			}
 			if ( fileList2.count() && fileList2.count() == kouzaList2.count() && fileList2.count() == hdateList2.count() ) {
 					for ( int j = 0; j < fileList2.count() && !isCanceled; j++ ){
 						if ( fileList2[j] == "" || fileList2[j] == "null" ) continue;
-						captureStream_json( kouzaList2[j], hdateList2[j], fileList2[j], yearList[j], file_titleList[j], "" );
+						captureStream_json( kouzaList2[j], hdateList2[j], fileList2[j], yearList[j], file_titleList[j], dupnmbList[j], json_paths[i], false );
 					}
 			}
 		   }
-
+		   
 		   if ( flag2 ) {								// xml 放送翌週月曜から１週間
-			QStringList fileList = getAttribute( prefix + Xml_koza + "/" + suffix, "@file" );
-			QStringList kouzaList = getAttribute( prefix + Xml_koza + "/" + suffix, "@kouza" );
-			QStringList hdateList = one2two( getAttribute( prefix + Xml_koza + "/" + suffix, "@hdate" ) );
-			QStringList nendoList = getAttribute( prefix + Xml_koza + "/" + suffix, "@nendo" );
-			QStringList dirList = getAttribute( prefix + Xml_koza + "/" + suffix, "@dir" );
+		   	QStringList fileList;
+			QStringList kouzaList;
+			QStringList hdateList1;
+			QStringList nendoList;
+			QStringList dirList;
+			std::tie( fileList, kouzaList, hdateList1, nendoList, dirList ) = getAttribute1( prefix + Xml_koza + "/" + suffix );
+			QStringList hdateList = one2two( hdateList1 );
 
-			if ( fileList.count() && fileList.count() == kouzaList.count() && fileList.count() == hdateList.count() && ( json_paths[i] == "0000") ) {
-			     if ( Xml_koza == "NULL"  )	continue;
+//			if ( fileList.count() && fileList.count() == kouzaList.count() && fileList.count() == hdateList.count() && ( ui->checkBox_next_week2->isChecked() || json_paths[i] == "0000") ) {
+//			     if ( Xml_koza == "NULL" && !(ui->checkBox_next_week2->isChecked()) )	continue;
 				if ( true /*ui->checkBox_this_week->isChecked()*/ ) {
 					for ( int j = 0; j < fileList.count() && !isCanceled; j++ ){
 						QString RR = "R";
@@ -1190,21 +1226,6 @@ void DownloadThread::run() {
 						captureStream( kouzaList[j], hdateList[j], fileList[j], nendoList[j], dirList[j], RR );
 					}
 				}
-			}
-		   }
-		   
-		   if ( flag3 ) {
-		   	QStringList fileList2 = getJsonData_ouch( paths[i], "file_name" );
-			QStringList kouzaList2 = getJsonData_ouch( paths[i], "program" );
-			QStringList file_titleList = getJsonData_ouch( paths[i], "file_title" );
-			QStringList hdateList2 = one2two( getJsonData_ouch( paths[i], "onair_date" ));
-			QStringList yearList = getJsonData_ouch( paths[i], "open_time" );
-			
-//			if ( fileList2.count() && fileList2.count() == kouzaList2.count() && fileList2.count() == hdateList2.count() ) {
-					for ( int j = 0; j < fileList2.count() && !isCanceled; j++ ){
-//						if ( fileList2[j] == "" || fileList2[j] == "null" ) continue;
-						captureStream_json( kouzaList2[j], hdateList2[j], fileList2[j], yearList[j], file_titleList[j], "O" );
-					}
 //			}
 		   }
 		}		   

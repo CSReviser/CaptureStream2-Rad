@@ -35,7 +35,8 @@ public:
 	DownloadThread( Ui::MainWindowClass* ui );
 	~DownloadThread() {}
 	void cancel() { isCanceled = true; }
-	
+	void id_list();
+		
 	static QString opt_title1;
 	static QString opt_title2;
 	static QString opt_title3;
@@ -44,6 +45,10 @@ public:
 	static QString opt_title6;
 	static QString opt_title7;
 	static QString opt_title8;
+	static QString nendo1;
+	static QString nendo2;
+	static QDate nendo_end_date1;
+	static QDate nendo_start_date1;
 
 protected:
 	void run();
@@ -56,9 +61,14 @@ signals:
 
 private:
 	QStringList getAttribute( QString url, QString attribute );
+	std::tuple<QStringList, QStringList, QStringList, QStringList, QStringList> getAttribute1( QString url );
 	QString getAttribute2( QString url, QString attribute );
-	QStringList getJsonData( QString url, QString attribute );
+	std::tuple<QStringList, QStringList, QStringList, QStringList, QStringList> getJsonData( QString url );
+	std::tuple<QStringList, QStringList, QStringList, QStringList, QStringList> getJsonData1( QString url );
+	std::tuple<QStringList, QStringList, QStringList, QStringList, QStringList> getJsonData2( QString url );
 	QStringList getJsonData_ouch( QString url, QString attribute );
+	QString getJsonFile( QString jsonUrl );
+
 	bool checkExecutable( QString path );
 	bool isFfmpegAvailable( QString& path );
 	bool istestAvailable( QString& path );
@@ -67,9 +77,9 @@ private:
 	QString ffmpeg_process( QStringList arguments );
 	
 	bool captureStream( QString kouza, QString hdate, QString file, QString nendo, QString dir, QString this_week );
-	bool captureStream_json( QString kouza, QString hdate, QString file, QString nendo, QString title, QString ouch );
+	bool captureStream_json( QString kouza, QString hdate, QString file, QString nendo, QString title, QString dupnmb, QString json_path, bool nogui_flag );
 	
-	QString formatName( QString format, QString kouza, QString hdate, QString file, QString nendo, bool checkIllegal );
+	QString formatName( QString format, QString kouza, QString hdate, QString file, QString nendo, QString dupnmb, bool checkIllegal );
 	QStringList getElements( QString url, QString path );
 	void downloadShower();
 
@@ -117,11 +127,6 @@ private:
 
 	static QHash<QString, QString> ffmpegHash;
 	static QHash<QProcess::ProcessError, QString>processError;
-	static QString nendo1;
-	static QString nendo2;
-	static QDate nendo_end_date1;
-	static QDate nendo_start_date1;
-
 };
 
 #endif // DOWNLOADTHREAD_H

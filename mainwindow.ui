@@ -311,7 +311,7 @@
          <item>
           <widget class="QCheckBox" name="checkBox_portuguese">
            <property name="text">
-            <string>ポルトガル語入門</string>
+            <string>ポルトガル語講座</string>
            </property>
           </widget>
          </item>
@@ -366,7 +366,7 @@
          <item>
           <widget class="QCheckBox" name="checkBox_stepup_portuguese">
            <property name="text">
-            <string>ポルトガル語ステップアップ</string>
+            <string>Ａｓｉａｎ　Ｖｉｅｗ</string>
            </property>
           </widget>
          </item>
