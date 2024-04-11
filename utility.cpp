@@ -21,6 +21,7 @@
 #include "utility.h"
 #include "urldownloader.h"
 #include "mainwindow.h"
+#include "downloadthread.h"
 #include "qt4qt5.h"
 
 #ifdef QT5
@@ -77,10 +78,10 @@ namespace {
 	const QString APPNAME( "CaptureStream2" );
 
 
-QDate nendo_start_date(2024, 4, 1);
-QDate zenki_end_date(2024, 9, 29);
-QDate kouki_start_date(2024, 4, 1);
-QDate nendo_end_date(2025, 3, 30);
+QDate nendo_start_date = DownloadThread::nendo_start_date1;
+QDate zenki_end_date = DownloadThread::zenki_end_date;
+QDate kouki_start_date = DownloadThread::kouki_start_date;
+QDate nendo_end_date = DownloadThread::nendo_end_date;
 
 
 QMap<QString, QString> koza_zenki = { 
@@ -537,12 +538,10 @@ std::tuple<QString, QString, QString, QString> Utility::nogui_option( QString ti
 	QStringList optionList = QCoreApplication::arguments();
 	optionList.removeAt(0);
 
-	for( int i = 0; i < optionList.count() ; i++ ){
-		if ( optionList[i].contains( "-t=" ) ) titleFormat_out = optionList[i].remove( "-t=" ).remove( "\"" );
-		if ( optionList[i].contains( "-f=" ) ) fileNameFormat_out = optionList[i].remove( "-f=" ).remove( "\"" );
-		if ( optionList[i].contains( "-o=" ) ) outputDir_out = optionList[i].remove( "-o=" ).remove( "\"" ) + QDir::separator();
-		if ( optionList[i].contains( "-e=" ) ) { extension_out = optionList[i].remove( "-e=" ).remove( "\"" ); if (extension_out == "mp3") extension_out += "-64k-S"; }
-	}
+	if ( optionList.contains( "-t" ) ) { titleFormat_out = optionList[ optionList.indexOf( "-t" ) + 1 ].remove( "'" ).remove( "\"" );}
+	if ( optionList.contains( "-f" ) ) { fileNameFormat_out = optionList[ optionList.indexOf( "-f" ) + 1 ].remove( "'" ).remove( "\"" );}
+	if ( optionList.contains( "-o" ) ) { outputDir_out = optionList[ optionList.indexOf( "-o" ) + 1 ].remove( "'" ).remove( "\"" ) + QDir::separator();}
+	if ( optionList.contains( "-e" ) ) { extension_out = optionList[ optionList.indexOf( "-e" ) + 1 ].remove( "'" ).remove( "\"" ); if (extension_out == "mp3") extension_out += "-64k-S"; }
 
 	return { titleFormat_out, fileNameFormat_out, outputDir_out, extension_out };
 }

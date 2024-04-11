@@ -48,7 +48,13 @@ public:
 	static QString nendo1;
 	static QString nendo2;
 	static QDate nendo_end_date1;
+	static QDate nendo_end_date2;
 	static QDate nendo_start_date1;
+	static QDate nendo_start_date2;
+	static QDate nendo_start_date;
+	static QDate zenki_end_date;
+	static QDate kouki_start_date;
+	static QDate nendo_end_date;
 
 protected:
 	void run();

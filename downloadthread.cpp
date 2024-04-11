@@ -118,10 +118,17 @@ QString DownloadThread::opt_title6;
 QString DownloadThread::opt_title7;
 QString DownloadThread::opt_title8;
 QStringList DownloadThread::malformed = (QStringList() << "3g2" << "3gp" << "m4a" << "mov");
-QString DownloadThread::nendo1 = "2024";
-QString DownloadThread::nendo2 = "2025";
-QDate DownloadThread::nendo_end_date1(2025, 3, 30);
-QDate DownloadThread::nendo_start_date1(2024, 4, 1);
+QString DownloadThread::nendo1 = "2024";	// 今年度
+QString DownloadThread::nendo2 = "2025";	// 次年度
+QDate DownloadThread::nendo_start_date(2024, 4, 1);	// 今年度開始
+QDate DownloadThread::zenki_end_date(2024, 9, 29);	// 今年度前期末、年度末は次年度前期末
+QDate DownloadThread::kouki_start_date(2024, 4, 1);	// 今年度後期開始
+QDate DownloadThread::nendo_end_date(2025, 3, 30);	// 今年度末
+QDate DownloadThread::nendo_start_date1(2024, 4, 1);	// 年度初めは今年度開始、年度末は次年開始
+QDate DownloadThread::nendo_end_date1(2025, 3, 30);	// 年度初めは今年度末、年度末は次年度末
+QDate DownloadThread::nendo_start_date2(2025, 3, 31);	// 次年度開始
+QDate DownloadThread::nendo_end_date2(2026, 3, 29);	// 次年度末
+
 
 QHash<QString, QString> DownloadThread::ffmpegHash;
 QHash<QProcess::ProcessError, QString> DownloadThread::processError;
@@ -503,13 +510,13 @@ bool illegal( char c ) {
 
 QString DownloadThread::formatName( QString format, QString kouza, QString hdate, QString file, QString nendo, QString dupnmb, bool checkIllegal ) {
 	int month = hdate.left( 2 ).toInt();
-	int year = nendo.right( 4 ).toInt();
+	int year = nendo.right( 4 ).toInt();	// カレンダー年、年度ではない
 	int day = hdate.mid( 3, 2 ).toInt();
 //	int year1 = QDate::currentDate().year();
 	
 	QDate on_air_date1(year, month, day);
-	if ( on_air_date1 <= nendo_end_date1 ) nendo = nendo1;
-	if ( on_air_date1 >= nendo_start_date1 ) nendo = nendo2;
+	if ( on_air_date1 >= nendo_start_date && on_air_date1 <= nendo_end_date ) nendo = nendo1;	// 今年度
+	if ( on_air_date1 >= nendo_start_date2 && on_air_date1 <= nendo_end_date2 ) nendo = nendo2;	// 次年度
 //	if ( QString::compare(  kouza , QString::fromUtf8( "ボキャブライダー" ) ) ==0 ){
 //		if ( month == 3 && ( day == 30 || day == 31) && year == 2022 ) 
 //		year += 0;
