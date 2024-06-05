@@ -169,7 +169,6 @@ std::tuple<QStringList, QStringList> Utility::getProgram_List( ) {
 	QStringList titleList; 		titleList.clear() ;
 		
 	const QString jsonUrl1 = "https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/corners/new_arrivals";
-	const QString jsonUrl2 = "https://www.nhk.or.jp/radioondemand/json/index_v3/index.json";
 
 	QString strReply;
 	int flag = 0;
@@ -182,10 +181,6 @@ std::tuple<QStringList, QStringList> Utility::getProgram_List( ) {
 		if ( strReply != "error" )  {
 			flag = 1; break;
 		}
-		strReply = Utility::getJsonFile( jsonUrl2, Timer );
-		if ( strReply != "error" )  {
-			flag = 2; break;
-		}
 		if ( Timer < 500 ) Timer += 50;
 		if ( Timer > 500 && Timer < TimerMax ) Timer += 100;
 	}
@@ -193,7 +188,7 @@ std::tuple<QStringList, QStringList> Utility::getProgram_List( ) {
 	switch ( flag ) {
 	case 0: idList += "error"; titleList += "error"; break;
 	case 1: std::tie( idList, titleList ) = Utility::getProgram_List1( strReply ); break;
-	case 2: std::tie( idList, titleList ) = Utility::getProgram_List2( strReply ); break;
+//	case 2: std::tie( idList, titleList ) = Utility::getProgram_List2( strReply ); break;
 	default: idList += "error"; titleList += "error"; break;
 	}
 	return { idList, titleList };
@@ -292,9 +287,9 @@ QString Utility::getProgram_name( QString url ) {
 	if ( url.contains( "_x1" ) ) { url.replace( "_x1", "_01" ); json_ohyo = 1 ; };
 	if ( url.contains( "_y1" ) ) { url.replace( "_y1", "_01" ); json_ohyo = 2 ; };
 	if (json_ohyo != 0){
-		if ( QDate::currentDate() < zenki_end_date ) 
+		if ( QDate::currentDate() <  DownloadThread::zenki_end_date )
 			if ( koza_zenki.contains( url_tmp ) ) return koza_zenki.value( url_tmp );
-		if ( QDate::currentDate() < nendo_end_date )
+		if ( DownloadThread::nendo_end_date < QDate::currentDate() && QDate::currentDate() < DownloadThread::nendo_end_date )
 			if ( koza_kouki.contains( url_tmp ) ) return koza_kouki.value( url_tmp );
 		if ( koza_unkown.contains( url_tmp ) ) return koza_unkown.value( url_tmp );
 	}
@@ -306,7 +301,6 @@ QString Utility::getProgram_name( QString url ) {
     	if ( !(QRegularExpression(pattern2).match( url ).hasMatch()) ) return attribute;
 	
  	const QString jsonUrl1 = "https://www.nhk.or.jp/radio-api/app/v1/web/ondemand/series?site_id=" + url.left(4) + "&corner_site_id=" + url.right(2);
-	const QString jsonUrl2 = "https://www.nhk.or.jp/radioondemand/json/" + url.left(4) + "/bangumi_" + url + ".json";
 
 	QString strReply;
 	int flag = 0;
@@ -319,10 +313,6 @@ QString Utility::getProgram_name( QString url ) {
 		if ( strReply != "error" )  {
 			flag = 1; break;
 		}
-		strReply = Utility::getJsonFile( jsonUrl2, Timer );
-		if ( strReply != "error" )  {
-			flag = 2; break;
-		}
 		if ( Timer < 500 ) Timer += 50;
 		if ( Timer > 500 && Timer < TimerMax ) Timer += 100;
 	}
@@ -330,7 +320,7 @@ QString Utility::getProgram_name( QString url ) {
 	switch ( flag ) {
 	case 0: return attribute;
 	case 1: std::tie( title, corner_name ) = Utility::getProgram_name1( strReply ); break;
-	case 2: std::tie( title, corner_name ) = Utility::getProgram_name2( strReply ); break;
+//	case 2: std::tie( title, corner_name ) = Utility::getProgram_name2( strReply ); break;
 	default: return attribute;
 	}
 	attribute = Utility::getProgram_name3( title, corner_name );
