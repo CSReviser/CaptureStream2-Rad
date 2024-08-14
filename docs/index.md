@@ -2,11 +2,11 @@
 ## ([語学講座CS2](https://csreviser.github.io/CaptureStream2/))[［類似アプリ］](https://csreviser.github.io/CaptureStream2/application)          
 
 ***
-### 語学講座CS【ラジ】 [2024/06/05版](https://github.com/CSReviser/Capturestream2-Rad/releases/tag/202400605)                 
+### 語学講座CS【ラジ】 [2024/08/14版](https://github.com/CSReviser/Capturestream2-Rad/releases/tag/202400814)                 
 
-   - #### Windows版(64bit): [2024/06/05版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20240605/CaptureStream2-Rad-Windows-x64-20240605.zip)    
-   - #### Ubuntu版: [2024/06/05版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20240605/CaptureStream2-Rad-Ubuntu-20240605.zip)
-   - #### MacOS版: [2024/06/05版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20240605/CaptureStream2-Rad-MacOS-20240605.dmg)
+   - #### Windows版(64bit): [2024/08/14版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20240814/CaptureStream2-Rad-Windows-x64-20240814.zip)    
+   - #### Ubuntu版: [2024/08/14版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20240814/CaptureStream2-Rad-Ubuntu-20240814.zip)
+   - #### MacOS版: [2024/08/14版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20240814/CaptureStream2-Rad-MacOS-20240814.dmg)
 　　     
                                
 ***       
