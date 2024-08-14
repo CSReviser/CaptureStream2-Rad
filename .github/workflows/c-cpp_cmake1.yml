@@ -1,0 +1,39 @@
+name: 1f. MacOS 12 qt6.5LTS Univarsal cmake C/C++ CI
+
+on:
+  workflow_dispatch:
+      branches: [ master ]
+      
+
+jobs:
+  build:
+
+    runs-on: macos-12
+
+    steps:
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v3
+      with:
+        version: 6.5.*
+        modules: 'qtcharts'
+        
+    - uses: actions/checkout@v4
+    - name: cmake
+      run: cmake -S ./ -B ./ -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
+    - name: make
+      run: make
+     
+    - name: Make CaptureStream2-extra executable
+      run: |
+        chmod -R 755 ./CaptureStream2-Rad.app
+ 
+    - name: mkdir
+      run: mkdir -p ./build/MacCaptureStream2-Rad
+
+    - name: Tar files
+      run: tar cvf CaptureStream2-Rad.tar ./CaptureStream2-Rad.app
+      
+    - uses: actions/upload-artifact@v4
+      with:
+        name: CaptureStream2-Rad-Univarsal-qt65
+        path: CaptureStream2-Rad.tar
