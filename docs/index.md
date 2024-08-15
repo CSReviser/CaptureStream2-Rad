@@ -6,7 +6,7 @@
 
    - #### Windows版(64bit): [2024/08/14版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20240814/CaptureStream2-Rad-Windows-x64-20240814.zip)    
    - #### Ubuntu版: [2024/08/14版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20240814/CaptureStream2-Rad-Ubuntu-20240814.zip)
-   - #### MacOS版: [2024/08/14版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20240814/CaptureStream2-Rad-MacOS-20240814.dmg)
+   - #### MacOS版: [2024/08/14版ダウンロード](https://github.com/CSReviser/CaptureStream2-Rad/releases/download/20240814/CaptureStream2-Rad-MacOS-20240814-1.dmg)
 　　     
                                
 ***       
