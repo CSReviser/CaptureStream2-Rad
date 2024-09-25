@@ -90,6 +90,11 @@ public:
 	static QString program_title7;
 	static QString program_title8;
 	static QString no_write_ini;
+	static QStringList idList;
+	static QStringList titleList;
+	static QMap<QString, QString> name_map;
+	static QMap<QString, QString> id_map;
+	static QMap<QString, QString> thumbnail_map;
 
 protected:
 	virtual void closeEvent( QCloseEvent *event );
@@ -117,7 +122,7 @@ private:
 	static QString prefix;
 	static QString suffix;
 	static QString json_prefix;
-
+	void setmap();
 	void settings( enum ReadWriteMode mode );
 };
 
