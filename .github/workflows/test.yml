@@ -19,8 +19,7 @@ jobs:
    
     - name: build  
       run: |
-        cd image2pdf-qt && qmake && mingw32-make release && cd ..
-        dir image2pdf-qt\release\image2pdf-qt.exe
+        qmake && mingw32-make release
 
     - name: Tar files
       run: tar cvf CaptureStream2-Rad.tar ./
