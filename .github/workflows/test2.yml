@@ -15,13 +15,13 @@ jobs:
     - name: install qt static
       uses: anthepro/install-qt-static@v1
       with:
-        version: 6.4.2
+        version: 6.5.2
         configure-args: -opensource -opengl desktop
         submodules: qtbase,qtshadertools,qtdeclarative
    
     - name: build  
       run: |
-        qmake CaptureStream2-Rad.pro
+        cmake -S ./ -B ./
         make release
 
     - name: Tar files
