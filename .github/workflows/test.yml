@@ -17,6 +17,11 @@ jobs:
       with:
         version: Qt6.5.3-Windows-x86_64-MinGW13.2.0-ucrt-staticFull-20240527
 
+    - uses: actions/checkout@v3
+    - name: build  
+      run: |
+        cmake -S ./ -B ./ && mingw32-make release
+
     - uses: actions/upload-artifact@v4
       with:
         name: CaptureStream2-Rad
