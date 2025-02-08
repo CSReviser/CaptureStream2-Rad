@@ -20,7 +20,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: build  
       run: |
-        qmake && mingw32-make release
+        qt-cmake.bat -S ./ -B ./ && mingw32-make release
 
     - uses: actions/upload-artifact@v4
       with:
