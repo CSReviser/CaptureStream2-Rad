@@ -18,9 +18,7 @@ jobs:
         version: Qt6.5.3-Windows-x86_64-MinGW13.2.0-ucrt-staticFull-20240527
    
     - name: build  
-      run: |
-        cd D:/a/CaptureStream2-Rad/
-        cmake -S ./ -B ./ && mingw32-make release
+
 
     - name: Tar files
       run: tar cvf CaptureStream2-Rad.tar ./
