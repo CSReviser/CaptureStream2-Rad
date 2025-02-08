@@ -19,7 +19,9 @@ jobs:
 
     - name: build  
       run: |
-        cd ../
+        cd CaptureStream2-Rad
+        cmake . .
+        make
       
     - uses: actions/upload-artifact@v4
       with:
