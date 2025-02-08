@@ -19,9 +19,9 @@ jobs:
         configure-args: -opensource -opengl desktop
         submodules: qtbase,qtshadertools,qtdeclarative
    
+    - uses: actions/checkout@v3
     - name: build  
       run: |
-        cd CaptureStream2-Rad
         cmake -S ./ -B ./
         make
  
