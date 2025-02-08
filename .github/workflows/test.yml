@@ -12,37 +12,21 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Install Qt
-      uses: jurplel/install-qt-action@v3
+    - name: install qt static
+      uses: orestonce/install-qt-static@v0.4.3
       with:
-        version: 6.5.*
-        modules: 'qtcharts'
-
-    - name: Setup FFmpeg
-      uses: AnimMouse/setup-ffmpeg@v1
-      with:
-        version: 5.1.2
-        
-    - uses: actions/checkout@v4
-    - name: cmake
-      run: cmake -S ./ -B ./ -DCMAKE_OSX_ARCHITECTURES="x86_64;arm64"
-    - name: make
-      run: make
-     
-    - name: Make CaptureStream2-extra executable
+        version: Qt5.15.7-Windows-x86_64-MinGW8.1.0-staticFull-20221104
+   
+    - name: build  
       run: |
-        wget -qO FFmpeg.7z https://evermeet.cx/ffmpeg/ffmpeg-5.1.2.7z
-        7z e FFmpeg.7z ffmpeg -o./CaptureStream2-Rad.app/Contents/MacOS/
-        chmod -R 755 ./CaptureStream2-Rad.app
- 
-    - name: mkdir
-      run: mkdir -p ./build/MacCaptureStream2-Rad
+        cd image2pdf-qt && qmake && mingw32-make release && cd ..
+        dir image2pdf-qt\release\image2pdf-qt.exe
 
     - name: Tar files
-      run: tar cvf CaptureStream2-Rad.tar ./CaptureStream2-Rad.app
+      run: tar cvf CaptureStream2-Rad.tar ./
       
     - uses: actions/upload-artifact@v4
       with:
-        name: CaptureStream2-Rad-Univarsal-qt65
+        name: CaptureStream2-Rad
         path: CaptureStream2-Rad.tar
 
