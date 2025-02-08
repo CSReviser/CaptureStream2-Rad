@@ -19,7 +19,7 @@ jobs:
    
     - name: build  
       run: |
-        qmake -makefile CaptureStream2-Rad.pro && mingw32-make release
+        qmake -makefile && mingw32-make release
 
     - name: Tar files
       run: tar cvf CaptureStream2-Rad.tar ./
