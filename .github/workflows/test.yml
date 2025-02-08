@@ -2,10 +2,12 @@ name: test
 
 on:
   workflow_dispatch:
-
+      branches: [ master ]
       
 
 jobs:
+  build:
+
     runs-on: windows-latest
 
     steps:
