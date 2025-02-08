@@ -19,7 +19,7 @@ jobs:
 
     - name: build  
       run: |
-        cd ../
+        cd ../../
         cmake -S ./ -B ./
         make
       
