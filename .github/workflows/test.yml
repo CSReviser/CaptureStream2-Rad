@@ -19,7 +19,8 @@ jobs:
    
     - name: build  
       run: |
-        cmake . . && mingw32-make release
+        cd ./
+        cmake ./ ./ && mingw32-make release
 
     - name: Tar files
       run: tar cvf CaptureStream2-Rad.tar ./
