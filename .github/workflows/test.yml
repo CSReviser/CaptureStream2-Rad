@@ -19,7 +19,7 @@ jobs:
    
     - name: build  
       run: |
-        cd ./
+        cd D:/a/CaptureStream2-Rad/
         cmake -S ./ -B ./ && mingw32-make release
 
     - name: Tar files
