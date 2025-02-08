@@ -21,9 +21,3 @@ jobs:
       cd image2pdf-qt && qmake && mingw32-make release && cd ..
       dir image2pdf-qt\release\image2pdf-qt.exe
 
-
-    - uses: actions/upload-artifact@v3
-      with:
-        name: CaptureStream2-Rad
-        path: ./
-
