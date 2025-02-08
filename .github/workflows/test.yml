@@ -19,7 +19,7 @@ jobs:
 
     - name: build  
       run: |
-        cd CaptureStream2-Rad
+        cd ../
         cmake . .
         make
       
