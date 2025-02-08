@@ -17,14 +17,8 @@ jobs:
       with:
         version: Qt6.5.3-Windows-x86_64-MinGW13.2.0-ucrt-staticFull-20240527
 
-    - name: build  
-      run: |
-        cd ../../
-        cmake -S ./ -B ./
-        make
-      
     - uses: actions/upload-artifact@v4
       with:
         name: CaptureStream2-Rad
-        path: ./
+        path: /
 
