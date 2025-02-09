@@ -22,7 +22,7 @@ jobs:
     - uses: actions/checkout@v3
     - name: build  
       run: |
-        cmake -S ./ -B ./
+        qmake -makefile CaptureStream2-Rad.pro
         make
  
     - uses: actions/upload-artifact@v4
